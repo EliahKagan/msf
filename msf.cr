@@ -45,22 +45,62 @@ class DisjointSets
   end
 end
 
-# Colors for graph edges, used by the `Graph` class.
-class Color
-  Gray
-  Red
-end
-
-# A weighted undirected edge.
-struct Edge
-  getter vertex1 : Int32
-  getter vertex2 : Int32
-  getter weight : Int32
-  property color : Color
-end
-
-# A weighted undireected graph with one bit (a "color") stored with each edge.
+# A weighted undirected graph to compute and output a minimum spanning forest.
 class Graph
-  @edges = [] of Tuple(Int32, Int32, Color)
-  @order = 0
+  property name = "MSF"
+  property indent = 4
+  property keep_color = "red"
+  property discard_color = "gray"
+
+  @edges = [] of NamedTuple(u: Int32, v: Int32, weight: Int32)
+
+  def initialize(order : Int32)
+    @order = order
+  end
+
+  def add_edge(u, v, weight)
+    raise ArgumentError.new("vertex u out of range") unless 0 <= u < @order
+    raise ArgumentError.new("vertex v out of range") unless 0 <= v < @order
+    @edges << {u: u, v: v, wt: weight}
+  end
+
+  def draw_msf(io = STDOUT)
+    keeps = msf_edge_bits
+
+    margin = " " * @indent
+    io.puts %(graph "#{name}" {)
+
+    # Add the vertices in ascending order, to be drawn as circle.
+    (0...@order).each { |vertex| io.puts %(#{margin}#{vertex} [shape=circle]) }
+    io.puts
+
+    # Add the edges in the order given, colorized according to MSF membership.
+    keeps.each_with_index do |keep, i|
+      edgespec = %(#{@edges[i][:u]} -- #{@edges[i][:v]})
+      colorspec = %([color="#{keep ? keep_color : discard_color}"])
+      labelspec = %(label="#{@edges[i][:weight]}")
+      io.puts "#{margin}#{edgespec} #{colorspec} #{labelspec}"
+    end
+
+    io.puts "}"
+  end
+
+  # Gets an array of bits, where bit i is true iff @edges[i] is in the MSF.
+  private def msf_edge_bits
+    sets = DisjointSets.new(@edges.size)
+    keeps = [False] * @edges.size
+    sorted_edge_indices.each do |i|
+      keeps[i] = sets.union(@edges[i].u, @edges[i].v)
+    end
+    keeps
+  end
+
+  # Sorts edge indices so the edges can be picked up in ascending order by
+  # weight. In case of ties, earlier (i.e. first-given) edges win.
+  private def sorted_edge_indices
+    (0...@edges.size).to_a.sort! do |i, j|
+      by_weight = @edges[i].wt <=> @edges[j].wt
+      by_weight.zero? ? i <=> j : by_weight
+    end
+  end
 end
