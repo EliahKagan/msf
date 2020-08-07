@@ -74,15 +74,17 @@ class Graph
     io.puts %(graph "#{name}" {)
 
     # Add the vertices in ascending order, to be drawn as circle.
-    (0...@order).each { |vertex| io.puts %(#{margin}#{vertex} [shape=circle]) }
+    (0...@order).each do |vertex|
+      io.puts %(#{margin}#{vertex} [shape="circle"])
+    end
     io.puts
 
     # Add the edges in the order given, colorized according to MSF membership.
     keeps.each_with_index do |keep, i|
       edgespec = %(#{@edges[i][:u]} -- #{@edges[i][:v]})
-      colorspec = %([color="#{keep ? keep_color : discard_color}"])
-      labelspec = %([label="#{@edges[i][:weight]}"])
-      io.puts "#{margin}#{edgespec} #{colorspec} #{labelspec}"
+      colorspec = %(color="#{keep ? keep_color : discard_color}")
+      labelspec = %(label="#{@edges[i][:weight]}")
+      io.puts "#{margin}#{edgespec} [#{colorspec} #{labelspec}]"
     end
 
     io.puts "}"
