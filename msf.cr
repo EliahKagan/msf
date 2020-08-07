@@ -2,6 +2,9 @@
 
 # Disjoint-set union data structure.
 class DisjointSets
+  @parents : Array(Int32)
+  @ranks : Array(Int8)
+
   # Performs *count* makeset operations.
   def initialize(count : Int)
     @parents = (0...count).to_a
@@ -61,7 +64,7 @@ class Graph
   def add_edge(u, v, weight)
     raise ArgumentError.new("vertex u out of range") unless 0 <= u < @order
     raise ArgumentError.new("vertex v out of range") unless 0 <= v < @order
-    @edges << {u: u, v: v, wt: weight}
+    @edges << {u: u, v: v, weight: weight}
   end
 
   def draw_msf(io = STDOUT)
@@ -88,9 +91,9 @@ class Graph
   # Gets an array of bits, where bit i is true iff @edges[i] is in the MSF.
   private def msf_edge_bits
     sets = DisjointSets.new(@edges.size)
-    keeps = [False] * @edges.size
+    keeps = [false] * @edges.size
     sorted_edge_indices.each do |i|
-      keeps[i] = sets.union(@edges[i].u, @edges[i].v)
+      keeps[i] = sets.union(@edges[i][:u], @edges[i][:v])
     end
     keeps
   end
@@ -99,8 +102,29 @@ class Graph
   # weight. In case of ties, earlier (i.e. first-given) edges win.
   private def sorted_edge_indices
     (0...@edges.size).to_a.sort! do |i, j|
-      by_weight = @edges[i].wt <=> @edges[j].wt
+      by_weight = @edges[i][:weight] <=> @edges[j][:weight]
       by_weight.zero? ? i <=> j : by_weight
     end
   end
 end
+
+# Convenience class to read an order and list of weighted edges as a graph.
+class GraphBuilder
+  @io : IO
+
+  def initialize(@io)
+  end
+
+  def read_graph
+    # FIXME: Show a proper error message on failure.
+    graph = Graph.new(@io.gets.as(String).to_i)
+
+    @io.each_line.map(&.split.map(&.to_i)).each do |(u, v, weight)|
+      graph.add_edge(u, v, weight)
+    end
+
+    graph
+  end
+end
+
+GraphBuilder.new(ARGF).read_graph.draw_msf
