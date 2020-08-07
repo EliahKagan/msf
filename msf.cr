@@ -81,7 +81,7 @@ class Graph
     keeps.each_with_index do |keep, i|
       edgespec = %(#{@edges[i][:u]} -- #{@edges[i][:v]})
       colorspec = %([color="#{keep ? keep_color : discard_color}"])
-      labelspec = %(label="#{@edges[i][:weight]}")
+      labelspec = %([label="#{@edges[i][:weight]}"])
       io.puts "#{margin}#{edgespec} #{colorspec} #{labelspec}"
     end
 
