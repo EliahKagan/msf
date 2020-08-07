@@ -44,3 +44,23 @@ class DisjointSets
     leader
   end
 end
+
+# Colors for graph edges, used by the `Graph` class.
+class Color
+  Gray
+  Red
+end
+
+# A weighted undirected edge.
+struct Edge
+  getter vertex1 : Int32
+  getter vertex2 : Int32
+  getter weight : Int32
+  property color : Color
+end
+
+# A weighted undireected graph with one bit (a "color") stored with each edge.
+class Graph
+  @edges = [] of Tuple(Int32, Int32, Color)
+  @order = 0
+end
