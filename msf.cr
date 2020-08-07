@@ -108,23 +108,16 @@ class Graph
   end
 end
 
-# Convenience class to read an order and list of weighted edges as a graph.
-class GraphBuilder
-  @io : IO
+# Read an order and list of weighted edges as a graph.
+def read_graph(io)
+  # FIXME: Show a proper error message on failure.
+  graph = Graph.new(io.gets.as(String).to_i)
 
-  def initialize(@io)
+  io.each_line.map(&.split.map(&.to_i)).each do |(u, v, weight)|
+    graph.add_edge(u, v, weight)
   end
 
-  def read_graph
-    # FIXME: Show a proper error message on failure.
-    graph = Graph.new(@io.gets.as(String).to_i)
-
-    @io.each_line.map(&.split.map(&.to_i)).each do |(u, v, weight)|
-      graph.add_edge(u, v, weight)
-    end
-
-    graph
-  end
+  graph
 end
 
-GraphBuilder.new(ARGF).read_graph.draw_msf
+read_graph(ARGF).draw_msf
