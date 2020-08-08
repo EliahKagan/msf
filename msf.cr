@@ -1,5 +1,35 @@
 # Finds and visualizes a minimum spanning forest.
 
+# Read-only view into a collection, supporting some array-like operations.
+class ReadOnlyView(C)
+  def initialize(@collection : C)
+  end
+
+  def size
+    @collection.size
+  end
+
+  def [](index)
+    @collection[index]
+  end
+
+  def each(&block)
+    @collection.each { |item| yield item }
+  end
+
+  def each
+    @collection.each
+  end
+
+  def each_with_index(&block)
+    @collection.each_with_index { |item, index| yield item, index }
+  end
+
+  def each_with_index
+    @collection.each_with_index
+  end
+end
+
 # Disjoint-set union data structure.
 class DisjointSets
   @parents : Array(Int32)
@@ -108,6 +138,10 @@ class Graph
       by_weight.zero? ? i <=> j : by_weight
     end
   end
+end
+
+class EdgeSelection
+
 end
 
 # Read an order and list of weighted edges as a graph.
