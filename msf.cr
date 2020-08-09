@@ -4,7 +4,13 @@ require "bit_array"
 
 # Read-only view into a collection, supporting some array-like operations.
 class ReadOnlyView(C)
+  protected getter collection
+
   def initialize(@collection : C)
+  end
+
+  def same_underlying?(other)
+    @collection.same?(other.collection)
   end
 
   def size
@@ -223,13 +229,21 @@ class EdgeSelection
   property keep_color = "red"
   property discard_color = "gray"
 
+  protected getter order
+  protected getter edges
+  protected getter selection
+
   def initialize(@order : Int32,
                  @edges : ReadOnlyView(Array(Edge)),
                  @selection : BitArray)
   end
 
-  # TODO: Implement a comparison function like same_selection? so a single
-  #       run can both emit and compare Kruskal and Prim results.
+  def same_selection?(other : EdgeSelection)
+    unless @order == other.order && @edges.same_underlying?(other.edges)
+      raise ArgumentError.new("can't compare selections on different graphs")
+    end
+    @edges == other.edges
+  end
 
   def draw(io = STDOUT)
     margin = " " * @indent
