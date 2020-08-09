@@ -1,4 +1,4 @@
-# msf -  Finds and visualizes a minimum spanning forest.
+# msf - Finds and visualizes a minimum spanning forest.
 
 require "bit_array"
 
@@ -62,6 +62,26 @@ class DisjointSets
 
     leader
   end
+end
+
+# A heap+map data structure for implementing Prim's and Dijkstra's algorithms.
+class PrimHeap(K, V)
+  struct Entry
+    getter key : K
+    getter value : V
+
+    def initialize(@key, @value)
+    end
+  end
+
+  private alias Index = Int32
+
+  @heap = [] of Entry
+  @lookup = {} of K => Index
+
+  def initialize(&@comparer : V, V -> Int32)
+  end
+
 end
 
 # An edge in a weighted undirected graph.
