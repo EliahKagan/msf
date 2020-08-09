@@ -205,17 +205,39 @@ class Graph
 
   # Gets an array of bits, where bit i is true iff @edges[i] is in the MSF.
   private def kruskal_msf_edge_bits
+    edge_bits = BitArray.new(@edges.size)
     sets = DisjointSets.new(@edges.size)
-    keeps = BitArray.new(@edges.size)
     sorted_edge_indices.each do |i|
-      keeps[i] = sets.union(@edges[i].u, @edges[i].v)
+      edge_bits[i] = sets.union(@edges[i].u, @edges[i].v)
     end
-    keeps
+    edge_bits
   end
 
   # Makes an array of all indices into @edges, sorted primarily by weight.
   private def sorted_edge_indices
     (0...@edges.size).to_a.sort! { |i, j| compare_edge_indices(i, j) }
+  end
+
+  def prim_msf(io = STDOUT)
+    selection = EdgeSelection.new(@order,
+                                  ReadOnlyView.new(@edges),
+                                  prim_msf_edge_bits)
+    selection.name = "MSF (Prim)"
+    selection
+  end
+
+  private def prim_msf_edge_bits
+    edge_bits = BitArray.new(@edges.size)
+    heap = PrimHeap(Int32, Int32).new { |i, j| compare_edge_indices(i, j) }
+    vis = BitArray.new(@order) # Vertices visited.
+    (0...@order).each do |start|
+      set_prim_mst_bits(edge_bits, heap, vis, start) unless vis[start]
+    end
+    edge_bits
+  end
+
+  private def set_prim_mst_bits(edge_bits, heap, vis, start)
+    #
   end
 
   # Compares indexes into @edges by edge weight. For edges of the same weight,
@@ -236,11 +258,11 @@ class EdgeSelection
 
   protected getter order
   protected getter edges
-  protected getter selection
+  protected getter edge_bits
 
   def initialize(@order : Int32,
                  @edges : ReadOnlyView(Array(Edge)),
-                 @selection : BitArray)
+                 @edge_bits : BitArray)
   end
 
   def same_selection?(other : EdgeSelection)
@@ -261,7 +283,7 @@ class EdgeSelection
     io.puts
 
     # Emit the edges in the order given, colorized according to selection.
-    @selection.each_with_index do |selected, i|
+    @edge_bits.each_with_index do |selected, i|
       edgespec = %(#{@edges[i].u} -- #{@edges[i].v})
       colorspec = %(color="#{selected ? keep_color : discard_color}")
       labelspec = %(label="#{@edges[i].weight}")
