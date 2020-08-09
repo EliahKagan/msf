@@ -70,17 +70,23 @@ class DisjointSets
   end
 end
 
+# An immutable key-value pair.
+struct KeyValuePair(K, V)
+  getter key : K
+  getter value : V
+
+  def initialize(@key, @value)
+  end
+end
+
+# Convenience method for creating key-value pairs.
+def make_kv(key : K, value : V) forall K, V
+  KeyValuePair(K, V).new(key, value)
+end
+
 # A heap+map data structure for implementing Prim's and Dijkstra's algorithms.
 class PrimHeap(K, V)
-  struct Entry(K, V)
-    getter key : K
-    getter value : V
-
-    def initialize(@key, @value)
-    end
-  end
-
-  @heap = [] of Entry(K, V)  # index => entry
+  @heap = [] of KeyValuePair(K, V)  # index => entry
   @lookup = {} of K => Int32 # key => index
 
   def initialize(&@comparer : V, V -> Int32)
@@ -101,10 +107,10 @@ class PrimHeap(K, V)
 
     if index.nil?
       index = size
-      @heap << Entry(K, V).new(key, value)
+      @heap << make_kv(key, value)
       update(index)
     elsif @comparer.call(value, @heap[index].value) < 0
-      @heap[index] = Entry(K, V).new(key, value)
+      @heap[index] = make_kv(key, value)
     else
       return
     end
@@ -195,7 +201,7 @@ class Graph
     @edges << Edge.new(u, v, weight)
   end
 
-  def kruskal_msf(io = STDOUT)
+  def kruskal_msf
     selection = EdgeSelection.new(@order,
                                   ReadOnlyView.new(@edges),
                                   kruskal_msf_edge_bits)
@@ -218,7 +224,7 @@ class Graph
     (0...@edges.size).to_a.sort! { |i, j| compare_edge_indices(i, j) }
   end
 
-  def prim_msf(io = STDOUT)
+  def prim_msf
     selection = EdgeSelection.new(@order,
                                   ReadOnlyView.new(@edges),
                                   prim_msf_edge_bits)
@@ -229,15 +235,42 @@ class Graph
   private def prim_msf_edge_bits
     edge_bits = BitArray.new(@edges.size)
     heap = PrimHeap(Int32, Int32).new { |i, j| compare_edge_indices(i, j) }
+    adj = build_adjacency_list
     vis = BitArray.new(@order) # Vertices visited.
     (0...@order).each do |start|
-      set_prim_mst_bits(edge_bits, heap, vis, start) unless vis[start]
+      set_prim_mst_bits(edge_bits, heap, adj, vis, start) unless vis[start]
     end
     edge_bits
   end
 
-  private def set_prim_mst_bits(edge_bits, heap, vis, start)
-    #
+  private def build_adjacency_list
+    adj = Array(Array(OutEdge)).new(@order) { [] of OutEdge }
+
+    @edges.each_with_index do |edge, index|
+      adj[edge.u] << OutEdge.new(edge.v, index)
+      adj[edge.v] << OutEdge.new(edge.u, index)
+    end
+
+    adj
+  end
+
+  private def set_prim_mst_bits(edge_bits, heap, adj, vis, start)
+    raise "Bug: heap should be empty between components" unless heap.empty?
+    src_entry = make_kv(start, INVALID_INDEX)
+    vis[start] = true
+
+    loop do
+      adj[src_entry.key].each do |out_edge|
+        next if vis[out_edge.dest]
+        heap.push_or_decrease(out_edge.dest, out_edge.index)
+      end
+
+      break if heap.empty?
+
+      src_entry = heap.pop
+      vis[src_entry.key] = true
+      edge_bits[src_entry.value] = true
+    end
   end
 
   # Compares indexes into @edges by edge weight. For edges of the same weight,
@@ -247,6 +280,16 @@ class Graph
   private def compare_edge_indices(i, j)
     by_weight = @edges[i].weight <=> @edges[j].weight
     by_weight.zero? ? i <=> j : by_weight
+  end
+
+  INVALID_INDEX = -1
+
+  private struct OutEdge
+    getter dest : Int32
+    getter index : Int32
+
+    def initialize(@dest, @index)
+    end
   end
 end
 
@@ -306,4 +349,16 @@ def read_graph(io)
   graph
 end
 
-read_graph(ARGF).kruskal_msf.draw
+graph = read_graph(ARGF)
+
+kruskal = graph.kruskal_msf
+kruskal.draw
+
+puts
+
+prim = graph.prim_msf
+prim.draw
+
+unless kruskal.same_selection?(prim)
+  STDERR.puts "#{PROGRAM_NAME}: warning: Krusal and Prim results differ"
+end
