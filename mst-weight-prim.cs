@@ -1,7 +1,3 @@
-// https://www.hackerrank.com/challenges/primsmstsub
-// In C# 6.0 (because HackerRank doesn't support newer versions).
-// Prim's algorithm, using a binary minheap + map data structure.
-
 using System;
 using System.Collections.Generic;
 
