@@ -312,7 +312,7 @@ class EdgeSelection
     unless @order == other.order && @edges.same_underlying?(other.edges)
       raise ArgumentError.new("can't compare selections on different graphs")
     end
-    @edges == other.edges
+    @edge_bits == other.edge_bits
   end
 
   def draw(io = STDOUT)
