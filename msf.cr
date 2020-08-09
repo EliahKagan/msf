@@ -218,7 +218,7 @@ class Graph
 end
 
 class EdgeSelection
-  property name = "(untilted)"
+  property name : String? = nil
   property indent = 4
   property keep_color = "red"
   property discard_color = "gray"
@@ -233,7 +233,7 @@ class EdgeSelection
 
   def draw(io = STDOUT)
     margin = " " * @indent
-    io.puts %(graph "#{@name}" {)
+    io.puts %[graph "#{@name || "(untitled)"}" {]
 
     # Emit the vertices in ascending order, to be drawn as circle.
     (0...@order).each do |vertex|
