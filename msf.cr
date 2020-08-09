@@ -66,7 +66,7 @@ end
 
 # A heap+map data structure for implementing Prim's and Dijkstra's algorithms.
 class PrimHeap(K, V)
-  struct Entry
+  struct Entry(K, V)
     getter key : K
     getter value : V
 
@@ -74,7 +74,7 @@ class PrimHeap(K, V)
     end
   end
 
-  @heap = [] of Entry        # index => entry
+  @heap = [] of Entry(K, V)  # index => entry
   @lookup = {} of K => Int32 # key => index
 
   def initialize(&@comparer : V, V -> Int32)
@@ -95,10 +95,10 @@ class PrimHeap(K, V)
 
     if index.nil?
       index = size
-      @heap << Entry.new(key, value)
+      @heap << Entry(K, V).new(key, value)
       update(index)
     elsif @comparer.call(value, @heap[index].value) < 0
-      @heap[index] = Entry.new(key, value)
+      @heap[index] = Entry(K, V).new(key, value)
     else
       return
     end
