@@ -303,6 +303,8 @@ class EdgeSelection
   protected getter edges
   protected getter edge_bits
 
+  @weight : Int64? = nil
+
   def initialize(@order : Int32,
                  @edges : ReadOnlyView(Array(Edge)),
                  @edge_bits : BitArray)
@@ -315,9 +317,21 @@ class EdgeSelection
     @edge_bits == other.edge_bits
   end
 
+  def weight
+    @weight ||= compute_weight
+  end
+
+  def compute_weight
+    @edge_bits
+      .each_with_index
+      .select { |(selected, index)| selected }
+      .sum(0i64) { |selected, index| @edges[index].weight }
+  end
+
   def draw(io = STDOUT)
     margin = " " * @indent
-    io.puts %[graph "#{@name || "(untitled)"}" {]
+    label_name = @name || "untitled"
+    io.puts %[graph "#{label_name}, total weight #{weight}" {]
 
     # Emit the vertices in ascending order, to be drawn as circle.
     (0...@order).each do |vertex|
@@ -326,10 +340,10 @@ class EdgeSelection
     io.puts
 
     # Emit the edges in the order given, colorized according to selection.
-    @edge_bits.each_with_index do |selected, i|
-      edgespec = %(#{@edges[i].u} -- #{@edges[i].v})
+    @edge_bits.each_with_index do |selected, index|
+      edgespec = %(#{@edges[index].u} -- #{@edges[index].v})
       colorspec = %(color="#{selected ? keep_color : discard_color}")
-      labelspec = %(label="#{@edges[i].weight}")
+      labelspec = %(label="#{@edges[index].weight}")
       io.puts "#{margin}#{edgespec} [#{colorspec} #{labelspec}]"
     end
 
@@ -349,6 +363,11 @@ def read_graph(io)
   graph
 end
 
+# Prints a warning message to standard error.
+def warn(message)
+  STDERR.puts "#{PROGRAM_NAME}: warning: #{message}"
+end
+
 graph = read_graph(ARGF)
 
 kruskal = graph.kruskal_msf
@@ -360,5 +379,9 @@ prim = graph.prim_msf
 prim.draw
 
 unless kruskal.same_selection?(prim)
-  STDERR.puts "#{PROGRAM_NAME}: warning: Krusal and Prim results differ"
+  warn "Kruskal and Prim results have different edges"
+end
+
+unless kruskal.weight == prim.weight
+  warn "Kruskal and Prim results have different weights!!"
 end
