@@ -213,13 +213,18 @@ class Graph
     keeps
   end
 
-  # Sorts edge indices so the edges can be picked up in ascending order by
-  # weight. In case of ties, earlier (i.e. first-given) edges win.
+  # Makes an array of all indices into @edges, sorted primarily by weight.
   private def sorted_edge_indices
-    (0...@edges.size).to_a.sort! do |i, j|
-      by_weight = @edges[i].weight <=> @edges[j].weight
-      by_weight.zero? ? i <=> j : by_weight
-    end
+    (0...@edges.size).to_a.sort! { |i, j| compare_edge_indices(i, j) }
+  end
+
+  # Compares indexes into @edges by edge weight. For edges of the same weight,
+  # the index itself is used to break the tie. This way, when the MSF is not
+  # unique (as sometimes happens when edge weights are not unique), all MSF
+  # algorithms give the same MSF (prefering edges given earlier in the input).
+  private def compare_edge_indices(i, j)
+    by_weight = @edges[i].weight <=> @edges[j].weight
+    by_weight.zero? ? i <=> j : by_weight
   end
 end
 
