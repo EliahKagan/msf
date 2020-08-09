@@ -74,14 +74,95 @@ class PrimHeap(K, V)
     end
   end
 
-  private alias Index = Int32
-
-  @heap = [] of Entry
-  @lookup = {} of K => Index
+  @heap = [] of Entry        # index => entry
+  @lookup = {} of K => Int32 # key => index
 
   def initialize(&@comparer : V, V -> Int32)
   end
 
+  def empty?
+    @heap.empty?
+  end
+
+  def size
+    @heap.size
+  end
+
+  # If *key* is absent, inserts it with *value*. If *key* is present with a
+  # value greater than *value*, decreases its value to *value*.
+  def push_or_decrease(key : K, value : V)
+    index = @lookup[key]?
+
+    if index.nil?
+      index = size
+      @heap << Entry.new(key, value)
+      update(index)
+    elsif @comparer.call(value, @heap[index].value) < 0
+      @heap[index] = Entry.new(key, value)
+    else
+      return
+    end
+
+    sift_up(index)
+  end
+
+  # Extracts the minimum entry.
+  def pop
+    case size
+    when 0
+      raise IndexError.new("can't pop from empty heap")
+    when 1
+      @lookup.clear
+      @heap.pop
+    else
+      entry = @heap[0]
+      @lookup.delete(entry.key)
+      @heap[0] = @heap.pop # Remove the last entry and place it at the front.
+      update(0)
+      sift_down(0)
+      entry
+    end
+  end
+
+  private def sift_up(child)
+    until child.zero?
+      parent = (child - 1) // 2
+      break if order_ok?(parent, child)
+      swap(parent, child)
+      child = parent
+    end
+  end
+
+  private def sift_down(parent)
+    loop do
+      child = pick_child(parent)
+      break if child.nil? || order_ok?(parent, child)
+      swap(parent, child)
+      parent = child
+    end
+  end
+
+  private def pick_child(parent)
+    left = parent * 2 + 1
+    return nil if left >= size
+    right = left + 1
+    right == size || order_ok?(left, right) ? left : right
+  end
+
+  private def order_ok?(parent, child)
+    @comparer.call(parent, child) <= 0
+  end
+
+  private def swap(parent, child)
+    @heap.swap(parent, child)
+    update(parent)
+    update(child)
+  end
+
+  private def update(index)
+    @lookup[@heap[index].key] = index
+    nil
+  end
 end
 
 # An edge in a weighted undirected graph.
