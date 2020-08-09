@@ -14,22 +14,6 @@ class ReadOnlyView(C)
   def [](index)
     @collection[index]
   end
-
-  def each(&block)
-    @collection.each { |item| yield item }
-  end
-
-  def each
-    @collection.each
-  end
-
-  def each_with_index(&block)
-    @collection.each_with_index { |item, index| yield item, index }
-  end
-
-  def each_with_index
-    @collection.each_with_index
-  end
 end
 
 # Disjoint-set union data structure.
