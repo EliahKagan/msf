@@ -55,11 +55,6 @@ class DisjointSets
   private def find_set(elem)
     # Find the ancestor.
     leader = elem
-
-    # FIXME: remove after debugging
-    STDERR.puts "@parents.size: #{@parents.size}"
-    STDERR.puts "leader: #{leader}"
-
     while leader != @parents[leader]
       leader = @parents[leader]
     end
