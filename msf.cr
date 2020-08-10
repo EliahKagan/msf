@@ -184,6 +184,11 @@ class PrimHeap(K, V)
   end
 
   private def order_ok?(parent, child)
+    # FIXME: THE BUG THAT VEXED ME SO WAS HERE IN PLAIN SIGHT ALL ALONG HUZZAH
+    # order_ok? takes indices to heap entries. @comparer takes values of heap
+    # entries. The way this program use PrimHeap, the value are indices into an
+    # array of edges. That array is otherwise unrelated to @heap. order_ok?
+    # needs to look up the values and compare those.
     @comparer.call(parent, child) <= 0
   end
 
@@ -339,7 +344,10 @@ class Graph
   # unique (as sometimes happens when edge weights are not unique), all MSF
   # algorithms give the same MSF (prefering edges given earlier in the input).
   private def compare_edge_indices(i, j)
+    puts "Edges:"
+    pp @edges
     by_weight = @edges[i].weight <=> @edges[j].weight
+    puts "by weight: #{@edges[i].weight}<=>#{@edges[j].weight} = #{by_weight}"
     by_weight.zero? ? i <=> j : by_weight
   end
 
