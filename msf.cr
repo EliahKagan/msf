@@ -55,6 +55,11 @@ class DisjointSets
   private def find_set(elem)
     # Find the ancestor.
     leader = elem
+
+    # FIXME: remove after debugging
+    STDERR.puts "@parents.size: #{@parents.size}"
+    STDERR.puts "leader: #{leader}"
+
     while leader != @parents[leader]
       leader = @parents[leader]
     end
@@ -271,7 +276,7 @@ class Graph
   # Gets an array of bits, where bit i is true iff @edges[i] is in the MSF.
   private def kruskal_msf_edge_bits
     edge_bits = BitArray.new(@edges.size)
-    sets = DisjointSets.new(@edges.size)
+    sets = DisjointSets.new(@edges.size) # FIXME: Here's the Kruskal bug.
     sorted_edge_indices.each do |i|
       edge_bits[i] = sets.union(@edges[i].u, @edges[i].v)
     end
