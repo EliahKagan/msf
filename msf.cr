@@ -142,7 +142,8 @@ class PrimHeap(K, V)
 
   private def sift_up(child)
     check_weak_ri
-    puts "Before sift_up(#{child}):"
+    original_child = child
+    puts "Before sift_up(#{original_child}):"
     pp @heap
 
     until child.zero?
@@ -152,14 +153,15 @@ class PrimHeap(K, V)
       child = parent
     end
 
-    puts "After sift_up(#{child}):"
+    puts "After sift_up(#{original_child}):"
     pp @heap
     check_strong_ri
   end
 
   private def sift_down(parent)
     check_weak_ri
-    puts "Before sift_down(#{parent}):"
+    original_parent = parent
+    puts "Before sift_down(#{original_parent}):"
     pp @heap
 
     loop do
@@ -169,7 +171,7 @@ class PrimHeap(K, V)
       parent = child
     end
 
-    puts "After sift_down(#{parent}):"
+    puts "After sift_down(#{original_parent}):"
     pp @heap
     check_strong_ri
   end
