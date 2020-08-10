@@ -105,7 +105,6 @@ class PrimHeap(K, V)
   # If *key* is absent, inserts it with *value*. If *key* is present with a
   # value greater than *value*, decreases its value to *value*.
   def push_or_decrease(key : K, value : V)
-    check_strong_ri
     index = @lookup[key]?
 
     if index.nil?
@@ -123,7 +122,6 @@ class PrimHeap(K, V)
 
   # Extracts the minimum entry.
   def pop
-    check_strong_ri
     case size
     when 0
       raise IndexError.new("can't pop from empty heap")
@@ -141,25 +139,21 @@ class PrimHeap(K, V)
   end
 
   private def sift_up(child)
-    check_weak_ri
     until child.zero?
       parent = (child - 1) // 2
       break if order_ok?(parent, child)
       swap(parent, child)
       child = parent
     end
-    check_strong_ri
   end
 
   private def sift_down(parent)
-    check_weak_ri
     loop do
       child = pick_child(parent)
       break if child.nil? || order_ok?(parent, child)
       swap(parent, child)
       parent = child
     end
-    check_strong_ri
   end
 
   private def pick_child(parent)
@@ -177,50 +171,11 @@ class PrimHeap(K, V)
     @heap.swap(parent, child)
     update(parent)
     update(child)
-    check_weak_ri
   end
 
   private def update(index)
     @lookup[@heap[index].key] = index
     nil
-  end
-
-  private def check_strong_ri
-    check_weak_ri
-    check_minheap_invariant
-  end
-
-  private def check_weak_ri
-    raise "Bug: RI: inconsistent sizes" if @heap.size != @lookup.size
-
-    if @heap.map(&.key).size != @heap.size
-      raise "Bug: RI: duplicate keys in heap"
-    end
-
-    if @heap.map(&.value).size != @heap.size
-      # NOTE: This would be okay in some uses, but not as used in this program.
-      raise "Bug: RI: duplicate values in heap"
-    end
-
-    @heap.map(&.key).each_with_index do |key, index|
-      raise "Bug: RI: key-index mismatch" if @lookup[key] != index
-    end
-  end
-
-  private def check_minheap_invariant
-    (0..).each do |parent|
-      left = parent * 2 + 1
-      break if left >= size
-
-      unless order_ok?(parent, left)
-        raise "Bug: RI: left child (#{parent} -> #{left}) violates minheap invariant"
-      end
-
-      right = left + 1
-      unless right == size || order_ok?(parent, right)
-        raise "Bug: RI: right child (#{parent} -> #{right}) violates minheap invariant"
-      end
-    end
   end
 end
 
