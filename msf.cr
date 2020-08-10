@@ -339,10 +339,7 @@ class Graph
   # unique (as sometimes happens when edge weights are not unique), all MSF
   # algorithms give the same MSF (prefering edges given earlier in the input).
   private def compare_edge_indices(i, j)
-    puts "Edges:"
-    pp @edges
     by_weight = @edges[i].weight <=> @edges[j].weight
-    puts "by weight: #{@edges[i].weight}<=>#{@edges[j].weight} = #{by_weight}"
     by_weight.zero? ? i <=> j : by_weight
   end
 
