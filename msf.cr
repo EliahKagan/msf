@@ -93,12 +93,10 @@ class PrimHeap(K, V)
   end
 
   def empty?
-    raise "Bug: empty? inconsistent" if @heap.empty? != @lookup.empty?
     @heap.empty?
   end
 
   def size
-    raise "Bug: size inconsistent" if @heap.size != @lookup.size
     @heap.size
   end
 
