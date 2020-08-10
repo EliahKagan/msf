@@ -200,6 +200,20 @@ class PrimHeap(K, V)
     @heap.map(&.key).each_with_index do |key, index|
       raise "Bug: check_ri: key-index mismatch" if @lookup[key] != index
     end
+
+    (0..).each do |parent|
+      left = parent * 2 + 1
+      break if left >= size
+
+      unless order_ok?(parent, left)
+        raise "Bug: check_ri: left child violates minheap invariant"
+      end
+
+      right = left + 1
+      unless right == size || order_ok?(parent, right)
+        raise "Bug: check_ri: right child violates minheap invariant"
+      end
+    end
   end
 end
 
