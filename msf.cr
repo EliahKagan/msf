@@ -191,19 +191,19 @@ class PrimHeap(K, V)
   end
 
   private def check_weak_ri
-    raise "Bug: check_ri: inconsistent sizes" if @heap.size != @lookup.size
+    raise "Bug: RI: inconsistent sizes" if @heap.size != @lookup.size
 
     if @heap.map(&.key).size != @heap.size
-      raise "Bug: check_ri: duplicate keys in heap"
+      raise "Bug: RI: duplicate keys in heap"
     end
 
     if @heap.map(&.value).size != @heap.size
       # NOTE: This would be okay in some uses, but not as used in this program.
-      raise "Bug: check_ri: duplicate values in heap"
+      raise "Bug: RI: duplicate values in heap"
     end
 
     @heap.map(&.key).each_with_index do |key, index|
-      raise "Bug: check_ri: key-index mismatch" if @lookup[key] != index
+      raise "Bug: RI: key-index mismatch" if @lookup[key] != index
     end
   end
 
@@ -213,12 +213,14 @@ class PrimHeap(K, V)
       break if left >= size
 
       unless order_ok?(parent, left)
-        raise "Bug: check_ri: left child violates minheap invariant"
+        pp @heap
+        raise "Bug: RI: left child (#{parent} -> #{left}) violates minheap invariant"
       end
 
       right = left + 1
       unless right == size || order_ok?(parent, right)
-        raise "Bug: check_ri: right child violates minheap invariant"
+        pp @heap
+        raise "Bug: RI: right child (#{parent} -> #{right}) violates minheap invariant"
       end
     end
   end
