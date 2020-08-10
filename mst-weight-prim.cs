@@ -221,24 +221,33 @@ internal sealed class Graph {
 internal static class Solution {
     private static int ReadValue() => int.Parse(Console.ReadLine());
 
+    /// <summary>Reads a line as a sequence of integers.</summary>
+    /// <returns>
+    /// The record read, or null on eof/error or if it is whitespace.
+    /// </returns>
+    /// <remarks>
+    /// This is useful for use in a loop to read lines until end-of-file or a
+    /// blank line.
+    /// </remarks>
     private static int[] ReadRecord()
-        => Array.ConvertAll(
-            Console.ReadLine().Split((char[])null,
-                                     StringSplitOptions.RemoveEmptyEntries),
-            int.Parse);
+    {
+        var line = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(line)) return null;
+
+        var tokens = line.Split((char[])null,
+                                StringSplitOptions.RemoveEmptyEntries);
+        return Array.ConvertAll(tokens, int.Parse);
+    }
 
     private static Graph ReadGraph()
     {
-        var parameters = ReadRecord();
-        var vertexCount = parameters[0];
-        var edgeCount = parameters[1];
-        var graph = new Graph(vertexCount + 1); // +1 for 1-based indexing
+        var order = ReadValue();
+        var graph = new Graph(order);
 
-        while (edgeCount-- > 0) {
-            var edgeValues = ReadRecord();
-            var u = edgeValues[0];
-            var v = edgeValues[1];
-            var weight = edgeValues[2];
+        for (int[] record; (record = ReadRecord()) != null; ) {
+            var u = record[0];
+            var v = record[1];
+            var weight = record[2];
             graph.AddEdge(u, v, weight);
         }
 
@@ -248,7 +257,7 @@ internal static class Solution {
     private static void Main()
     {
         var graph = ReadGraph();
-        var start = ReadValue();
+        var start = 0; // For now, just try with 0.
         Console.WriteLine(graph.ComputePrimMstTotalWeight(start));
     }
 }
