@@ -93,10 +93,12 @@ class PrimHeap(K, V)
   end
 
   def empty?
+    raise "Bug: empty? inconsistent" if @heap.empty? != @lookup.empty?
     @heap.empty?
   end
 
   def size
+    raise "Bug: size inconsistent" if @heap.size != @lookup.size
     @heap.size
   end
 
@@ -174,6 +176,23 @@ class PrimHeap(K, V)
   private def update(index)
     @lookup[@heap[index].key] = index
     nil
+  end
+
+  private def check_ri # FIXME: Actually call this, for testing.
+    raise "Bug: check_ri: inconsistent sizes" if @heap.size != @lookup.size
+
+    if @heap.map(&.key).size != @heap.size
+      raise "Bug: check_ri: duplicate keys in heap"
+    end
+
+    if @heap.map(&.value).size != @heap.size
+      # NOTE: This would be okay in some uses, but not as used in this program.
+      raise "Bug: check_ri: duplicate values in heap"
+    end
+
+    @heap.map(&.key).each_with_index do |key, index|
+      raise "Bug: check_ri: key-index mismatch" if @lookup[key] != index
+    end
   end
 end
 
