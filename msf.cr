@@ -390,7 +390,7 @@ class EdgeSelection
     @edge_bits.each_with_index do |selected, index|
       edgespec = %(#{@edges[index].u} -- #{@edges[index].v})
       colorspec = %(color="#{selected ? keep_color : discard_color}")
-      labelspec = %(label="#{@edges[index].weight}[#{index}]")
+      labelspec = %(label="#{@edges[index].weight}")
       io.puts "#{margin}#{edgespec} [#{colorspec} #{labelspec}]"
     end
 
