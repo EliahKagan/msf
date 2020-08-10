@@ -276,7 +276,7 @@ class Graph
   # Gets an array of bits, where bit i is true iff @edges[i] is in the MSF.
   private def kruskal_msf_edge_bits
     edge_bits = BitArray.new(@edges.size)
-    sets = DisjointSets.new(@edges.size) # FIXME: Here's the Kruskal bug.
+    sets = DisjointSets.new(@order)
     sorted_edge_indices.each do |i|
       edge_bits[i] = sets.union(@edges[i].u, @edges[i].v)
     end
