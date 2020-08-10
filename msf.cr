@@ -142,37 +142,23 @@ class PrimHeap(K, V)
 
   private def sift_up(child)
     check_weak_ri
-    original_child = child
-    puts "Before sift_up(#{original_child}):"
-    pp @heap
-
     until child.zero?
       parent = (child - 1) // 2
       break if order_ok?(parent, child)
       swap(parent, child)
       child = parent
     end
-
-    puts "After sift_up(#{original_child}):"
-    pp @heap
     check_strong_ri
   end
 
   private def sift_down(parent)
     check_weak_ri
-    original_parent = parent
-    puts "Before sift_down(#{original_parent}):"
-    pp @heap
-
     loop do
       child = pick_child(parent)
       break if child.nil? || order_ok?(parent, child)
       swap(parent, child)
       parent = child
     end
-
-    puts "After sift_down(#{original_parent}):"
-    pp @heap
     check_strong_ri
   end
 
