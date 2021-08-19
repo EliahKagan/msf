@@ -1,0 +1,11 @@
+# Ignore files that have no "." (https://stackoverflow.com/a/31326382)
+*
+!*/
+!*.*
+
+# Ignore editor tempfiles.
+.*.swp
+
+# Ignore compiled binares associated with some other languages. Some such code
+# exists in this repository for comparison to Crystal and for testing.
+*.exe
