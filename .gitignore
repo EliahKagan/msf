@@ -1,11 +1,14 @@
 # Ignore files that have no "." (https://stackoverflow.com/a/31326382)
+# since most of these are compiled (in this repo, Crystal) binaries.
 *
 !*/
 !*.*
 
+# Except... don't ignore the LICENSE file!
+!/LICENSE
+
 # Ignore editor tempfiles.
 .*.swp
 
-# Ignore compiled binares associated with some other languages. Some such code
-# exists in this repository for comparison to Crystal and for testing.
+# Ignore compiled C# binaries (currently mst-weight-prim.exe).
 *.exe
