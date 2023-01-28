@@ -114,6 +114,10 @@ To use `msf`:
 3. Run `msf`, giving it a graph description (see below) as input, either by
    passing it a filename, or via standard input.
 
+4. (Optional) Render the returned DOT code with by calling the
+   [Graphviz](https://graphviz.org/) `dot` command, or pasting it into
+   [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/).
+
 **`msf` produces [DOT code](https://graphviz.org/doc/info/lang.html) as output,
 but it expects input in a simpler format.** Each graph is assumed to consist of
 vertices identified by numbers, running from 0 to one less than the order of
