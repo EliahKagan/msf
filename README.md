@@ -25,10 +25,10 @@ repeated for each component.
 It outputs [DOT code](https://graphviz.org/doc/info/lang.html) describing the
 full graph it was given, with a minimum spanning forest&rsquo;s edges colored
 red, and any other edges colored black. You can supply that DOT code as input
-to [GraphViz](https://graphviz.org/) utilities, such as `dot`, to render nice
+to [Graphviz](https://graphviz.org/) utilities, such as `dot`, to render nice
 images of the graph. (You can [install
-GraphViz](https://graphviz.org/download/) in the traditional manner and run it;
-or you can use [GraphViz Online](https://dreampuf.github.io/GraphvizOnline) by
+Graphviz](https://graphviz.org/download/) in the traditional manner and run it;
+or you can use [Graphviz Online](https://dreampuf.github.io/GraphvizOnline) by
 [dreampuf](https://github.com/dreampuf/GraphvizOnline).)
 
 The DOT code `msf` emits actually describes *two* graphs&mdash;one showing the
